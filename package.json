@@ -2,7 +2,7 @@
     "name": "self-tunnel",
     "version": "0.2.5",
     "description": "A lightweight local HTTP tunnel over WebSocket",
-    "main": "src/index.js",
+    "main": "src/selfTunnel.js",
     "type": "module",
     "scripts": {
         "test": "echo \"No tests yet\" && exit 0"
@@ -19,7 +19,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/bahr1k/self-tunnel"
+        "url": "git+https://github.com/bahr1k/self-tunnel.git"
     },
     "dependencies": {
         "ws": "^8.17.0"
