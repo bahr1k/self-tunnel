@@ -20,6 +20,7 @@ export default function selfTunnel(options = {}, app = null) {
 
         debug: options.debug || false,
         isPublic: options.public || false,
+        localPort: options.localPort || 80,
 
         pingInterval: options.pingInterval || 50000,
         autoConnectInterval: options.autoConnectInterval !== undefined ? options.autoConnectInterval : 30000
@@ -62,7 +63,7 @@ export default function selfTunnel(options = {}, app = null) {
             }
 
             connecting = true;
-            localSocket = net.connect({ port: process.env.HTTP_PORT, host: '127.0.0.1' }, () => {
+            localSocket = net.connect({ port: tunnel.localPort, host: '127.0.0.1' }, () => {
                 if (tunnel.debug) console.log('Connected to local HTTP server');
                 localSocket.setKeepAlive(true, 10000);
                 connecting = false;
