@@ -1,0 +1,27 @@
+{
+    "name": "self-tunnel",
+    "version": "0.2.5",
+    "description": "A lightweight local HTTP tunnel over WebSocket",
+    "main": "src/index.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"No tests yet\" && exit 0"
+    },
+    "keywords": [
+        "tunnel",
+        "http-proxy",
+        "websocket",
+        "reverse-proxy",
+        "localhost",
+        "devtools"
+    ],
+    "author": "Dmitry Valerich G.",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bahr1k/self-tunnel"
+    },
+    "dependencies": {
+        "ws": "^8.17.0"
+    }
+}
