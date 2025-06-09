@@ -1,9 +1,9 @@
 {
     "name": "self-tunnel",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "A lightweight local HTTP tunnel over WebSocket",
     "main": "src/selfTunnel.js",
-    "type": "module",
+    "type": "commonjs",
     "scripts": {
         "test": "echo \"No tests yet\" && exit 0"
     },
