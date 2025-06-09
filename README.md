@@ -1,15 +1,21 @@
 # self-tunnel
 
-self-tunnel is a lightweight Node.js module that allows your application to establish a secure, outbound WebSocket tunnel to a remote service. This provides HTTPS access to your local web server (Express, Fastify, etc.) from anywhere in the world without port forwarding or a static IP address.You can register any domain (including free subdomains from providers like No-IP or ClouDNS) or use your own custom domain and configure it in one place.
+self-tunnel is a lightweight Node.js module that allows your application to establish a secure, outbound WebSocket tunnel to a remote service. This provides HTTPS access to your local web server (Express, Fastify, etc.) from anywhere in the world without port forwarding or a static IP address. You can register any domain (including free subdomains from providers like No-IP or ClouDNS) or use your own custom domain and configure it in one place.
 
 ## Features
 
 -📡 Remote HTTPS access to a Node.js server behind a NAT or firewall.
+
 -🔐 Secure tunneling over WebSockets (WSS).
+
 -🌍 No port forwarding or public IP address required.
+
 -⚙️ Easy integration with any Node.js application running on a local port.
+
 -🔧 Flexible configuration via an options object or environment variables (process.env).
+
 -🔄 Automatic reconnection and keep-alive checks.
+
 -🕊️ Minimal dependencies (only ws). 
 
 ## How It Works
@@ -23,13 +29,16 @@ self-tunnel is a lightweight Node.js module that allows your application to esta
 ## Quick Start
 
 ### 1. Pick/Register a Domain
-- You can use **any** domain or subdomain.  
-- If you need a free subdomain, try services like **No-IP** or **ClouDNS**.  
+- You can use **any** domain or subdomain.
+
+- If you need a free subdomain, try services like **No-IP** or **ClouDNS**.
+
 - Add your domain to the https://device-tunnel.top/ service.
 
 ### 2. Installation
 
 Add the module to your project using npm or yarn:
+
 ```bash
 npm install self-tunnel # or yarn add self-tunnel
 ```
@@ -73,6 +82,7 @@ If you have multiple Node.js applications running behind the same tunnel domain,
 
 - Application A uses:
 selfTunnel({ domain: "myapps.example.com", device: "service-A", ... })
+
 - Application B uses the same domain but a different device name:
 selfTunnel({ domain: "myapps.example.com", device: "service-B", ... })
 
@@ -87,16 +97,20 @@ The tunnel service will route requests based on the device name prefix. The devi
 ## Requirements
 
 - Node.js v16.x or higher.
+  
 - A running local web server (based on Express, Fastify, http.createServer, etc.).
+  
 - A registered domain (or subdomain) pointing to a compatible tunnel service
 
 ## Configuration Reference
 
 Initializes and starts the tunnel.
-`selfTunnel(options, [app])`
-app<Object>: (Optional) An Express/Connect app instance. If provided, the module will automatically add middleware to preserve the x-original-id header.
 
-`options`<Object>
+`selfTunnel(options, [app])`
+
+app<Object>: (Optional) An Express/Connect app instance. If provided, the module will automatically add middleware to preserve the x-original-id header for better performance.
+
+`options<Object>` 
 <table><tbody><tr><th><p>Parameter</p></th><th><p>Type</p></th><th><p>Description</p></th><th><p>Default</p></th><th><p>Environment Variable</p></th></tr><tr><td><p><strong><code>domain</code></strong></p></td><td><p><code>&lt;string&gt;</code></p></td><td><p><strong>(Required)</strong> Your tunnel domain.</p></td><td><p>-</p></td><td><p><code>TUNNEL_DOMAIN</code></p></td></tr><tr><td><p><strong><code>secret</code></strong></p></td><td><p><code>&lt;string&gt;</code></p></td><td><p><strong>(Required)</strong> The secret key from the tunnel service.</p></td><td><p>-</p></td><td><p><code>TUNNEL_SECRET</code></p></td></tr><tr><td><p><code>localPort</code></p></td><td><p><code>&lt;number&gt;</code></p></td><td><p>The port of your local HTTP server.</p></td><td><p><code>80</code></p></td><td><p>-</p></td></tr><tr><td><p><code>provider</code></p></td><td><p><code>&lt;string&gt;</code></p></td><td><p>The WebSocket URL of the tunnel provider.</p></td><td><p><code>wss://device-tunnel.top:3333</code></p></td><td><p>-</p></td></tr><tr><td><p><code>device</code></p></td><td><p><code>&lt;string&gt;</code></p></td><td><p>A unique device name for path-based routing.</p></td><td><p><code>'default-app'</code></p></td><td><p>-</p></td></tr><tr><td><p><code>public</code></p></td><td><p><code>&lt;boolean&gt;</code></p></td><td><p>Access mode. <code>true</code> for public, <code>false</code> for private (requires service auth).</p></td><td><p><code>false</code></p></td><td><p>-</p></td></tr><tr><td><p><code>debug</code></p></td><td><p><code>&lt;boolean&gt;</code></p></td><td><p>Set to <code>true</code> to enable verbose logging to the console.</p></td><td><p><code>false</code></p></td><td><p>-</p></td></tr><tr><td><p><code>pingInterval</code></p></td><td><p><code>&lt;number&gt;</code></p></td><td><p>Interval for sending ping requests to keep the connection alive (in ms).</p></td><td><p><code>50000</code></p></td><td><p>-</p></td></tr><tr><td><p><code>autoConnectInterval</code></p></td><td><p><code>&lt;number&gt;</code></p></td><td><p>Interval for reconnection attempts on disconnect (in ms). Set to <code>0</code> to disable.</p></td><td><p><code>30000</code></p></td><td><p>-</p></td></tr></tbody></table>
 
 
