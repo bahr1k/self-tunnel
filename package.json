@@ -1,6 +1,6 @@
 {
     "name": "self-tunnel",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "description": "A lightweight local HTTP tunnel over WebSocket",
     "main": "src/selfTunnel.js",
     "type": "module",

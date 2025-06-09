@@ -3,7 +3,7 @@ import { WebSocket } from 'ws';
 
 export default function selfTunnel(options = {}, app = null) {
     const tunnel = {
-        url: 'wss://device-tunnel.top:3333',
+        url: options.provider || 'wss://device-tunnel.top:3333',
         // Tunnel connection settings
         auth: {
             domain: options.domain || process.env.TUNNEL_DOMAIN,
@@ -17,16 +17,20 @@ export default function selfTunnel(options = {}, app = null) {
         isPrimary: false,
         ws: null,
         alive: false,
-
+        // Options
         debug: options.debug || false,
         isPublic: options.public || false,
         localPort: options.localPort || 80,
 
         pingInterval: options.pingInterval || 50000,
-        autoConnectInterval: options.autoConnectInterval !== undefined ? options.autoConnectInterval : 30000
+        autoConnectInterval: options.autoConnectInterval !== undefined ? options.autoConnectInterval : 30000,
+        // Functions
+        close: null,
+        pause: null,
+        resume: null
     };
 
-    if (app) {
+    if (app) { //TODO option middleware
         app.use((req, res, next) => {
             if (req.headers['x-original-id'])
                 res.setHeader('x-original-id', req.headers['x-original-id']);
@@ -353,6 +357,19 @@ export default function selfTunnel(options = {}, app = null) {
             tunnel.ws = null;
         }
         tunnel.autoConnectInterval = 0; // Disable auto-reconnect
+    };
+
+    tunnel.pause = () => {
+        if (tunnel.ws)
+            tunnel.ws.send(tunnel.suspendCommand, { binary: true });
+    };
+
+    tunnel.resume = () => {
+        if (tunnel.ws)
+            tunnel.ws.send(JSON.stringify({
+                type: 'start',
+                usage: tunnel.isPublic ? 'public' : 'private'
+            }));
     };
 
     return tunnel;
