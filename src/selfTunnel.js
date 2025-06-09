@@ -1,7 +1,61 @@
-import net from 'net';
-import { WebSocket } from 'ws';
+const net = require('net');
+const { WebSocket } = require('ws');
 
-export default function selfTunnel(options = {}, app = null) {
+/**
+ * @typedef {Object} TunnelOptions
+ * @property {string} [provider='wss://device-tunnel.top:3333'] - Tunnel server URL
+ * @property {string} [domain] - Domain name for the tunnel
+ * @property {string} [secret] - Secret key for authentication
+ * @property {string} [device='default-app'] - Device identifier
+ * @property {boolean} [debug=false] - Enable debug logging
+ * @property {boolean} [public=false] - Make tunnel publicly accessible
+ * @property {number} [localPort=80] - Local port to tunnel
+ * @property {number} [pingInterval=50000] - Ping interval in milliseconds
+ * @property {number} [autoConnectInterval=30000] - Auto-reconnect interval in milliseconds
+ */
+
+/**
+ * @typedef {Object} TunnelInstance
+ * @property {string} url - Tunnel server URL
+ * @property {Object} auth - Authentication configuration
+ * @property {string} auth.domain - Domain name
+ * @property {string} auth.secret - Secret key
+ * @property {string} auth.device - Device identifier
+ * @property {Buffer|null} suspendCommand - Command to suspend tunnel
+ * @property {Buffer|null} eofMarker - End-of-file marker
+ * @property {NodeJS.Timeout|null} pingIntervalId - Ping interval timer
+ * @property {boolean} isPrimary - Whether this is the primary tunnel
+ * @property {WebSocket|null} ws - WebSocket connection
+ * @property {boolean} alive - Connection alive status
+ * @property {boolean} debug - Debug mode flag
+ * @property {boolean} isPublic - Public access flag
+ * @property {number} localPort - Local port number
+ * @property {number} pingInterval - Ping interval duration
+ * @property {number} autoConnectInterval - Auto-reconnect interval duration
+ * @property {function} close - Function to close the tunnel
+ * @property {function} pause - Function to pause the tunnel
+ * @property {function} resume - Function to resume the tunnel
+ */
+
+/**
+ * Creates a self-tunnel connection to expose local HTTP server through WebSocket tunnel
+ * 
+ * @param {TunnelOptions} [options={}] - Configuration options for the tunnel
+ * @param {Object} [app=null] - Express app instance for middleware injection
+ * @returns {TunnelInstance} Tunnel instance with control methods
+ * 
+ * @example
+ * const tunnel = selfTunnel({
+ *   domain: 'myapp.example.com',
+ *   secret: 'my-secret-key',
+ *   localPort: 3000,
+ *   debug: true
+ * });
+ * 
+ * // Close tunnel when done
+ * tunnel.close();
+ */
+function selfTunnel(options = {}, app = null) {
     const tunnel = {
         url: options.provider || 'wss://device-tunnel.top:3333',
         // Tunnel connection settings
@@ -44,6 +98,10 @@ export default function selfTunnel(options = {}, app = null) {
     let connecting = false;
     let processing = false;
 
+    /**
+     * Ensures a connection to the local HTTP server
+     * @returns {Promise<net.Socket>} Promise that resolves to local socket connection
+     */
     function ensureLocalConnection() {
         return new Promise((resolve, reject) => {
             if (localSocket && !localSocket.destroyed) {
@@ -88,6 +146,10 @@ export default function selfTunnel(options = {}, app = null) {
         });
     }
 
+    /**
+     * Processes queued HTTP requests sequentially
+     * @returns {Promise<void>}
+     */
     async function processRequestQueue() {
         if (processing || requestQueue.length === 0) return;
         processing = true;
@@ -178,6 +240,10 @@ export default function selfTunnel(options = {}, app = null) {
             setImmediate(processRequestQueue);
     }
 
+    /**
+     * Sends response back through the tunnel
+     * @param {Buffer} resBuffer - Response data to send
+     */
     function handleTunnelResponse(resBuffer) {
         tunnel.ws.send(resBuffer, { binary: true }, (err) => {
             if (err)
@@ -193,6 +259,10 @@ export default function selfTunnel(options = {}, app = null) {
             );
     }
 
+    /**
+     * Handles incoming tunnel requests
+     * @param {Buffer} reqBuffer - Request data from tunnel
+     */
     function handleTunnelRequest(reqBuffer) {
         if (app && processing && localSocket) {
             localSocket.write(reqBuffer);
@@ -204,7 +274,9 @@ export default function selfTunnel(options = {}, app = null) {
         }
     }
 
-    // Function to connect to the wss tunnel
+    /**
+     * Establishes connection to the tunnel server
+     */
     function connectToTunnel() {
         cleanup();
 
@@ -311,7 +383,7 @@ export default function selfTunnel(options = {}, app = null) {
         });
 
         ws.on('pong', function pong() {
-            tunnel.alive = true; // Помечаем сервер как активный
+            tunnel.alive = true; // Mark server as active
             if (tunnel.debug) console.log('Tunnel pong, alive');
         });
 
@@ -329,6 +401,9 @@ export default function selfTunnel(options = {}, app = null) {
             }, tunnel.pingInterval);
     }
 
+    /**
+     * Cleans up resources and connections
+     */
     function cleanup() {
         if (tunnel.pingIntervalId) {
             clearInterval(tunnel.pingIntervalId);
@@ -350,6 +425,9 @@ export default function selfTunnel(options = {}, app = null) {
 
     connectToTunnel();
 
+    /**
+     * Closes the tunnel connection and prevents auto-reconnection
+     */
     tunnel.close = () => {
         cleanup();
         if (tunnel.ws) {
@@ -359,11 +437,17 @@ export default function selfTunnel(options = {}, app = null) {
         tunnel.autoConnectInterval = 0; // Disable auto-reconnect
     };
 
+    /**
+     * Pauses the tunnel by sending suspend command
+     */
     tunnel.pause = () => {
         if (tunnel.ws)
             tunnel.ws.send(tunnel.suspendCommand, { binary: true });
     };
 
+    /**
+     * Resumes the tunnel after being paused
+     */
     tunnel.resume = () => {
         if (tunnel.ws)
             tunnel.ws.send(JSON.stringify({
@@ -374,3 +458,5 @@ export default function selfTunnel(options = {}, app = null) {
 
     return tunnel;
 }
+
+module.exports = selfTunnel;
