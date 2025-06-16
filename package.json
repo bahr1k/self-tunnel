@@ -3,6 +3,7 @@
     "version": "0.3.2",
     "description": "A lightweight local HTTP tunnel over WebSocket",
     "main": "src/selfTunnel.js",
+    "types": "src/selfTunnel.d.ts",
     "type": "commonjs",
     "scripts": {
         "test": "echo \"No tests yet\" && exit 0"
